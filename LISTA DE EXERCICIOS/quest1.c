@@ -59,8 +59,7 @@ int main(){
         printf("pilha[%d] -> %d\n", i, pilha[i]);
     }
 
-    int *pilhaInvertida = invertePilha(pilha, referenciatopo);  // Chama a função para inverter a pilha
-    
+    int *pilhaInvertida = invertePilha(pilha, referenciatopo);  
     printf("Pilha invertida:\n");
     for(int i = 0; i < referenciatopo; i++){
         printf("pilhaInvertida[%d] -> %d\n", i, pilhaInvertida[i]);
@@ -68,4 +67,3 @@ int main(){
     
     return 0;
 }
-
