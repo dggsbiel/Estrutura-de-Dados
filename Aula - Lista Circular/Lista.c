@@ -7,18 +7,18 @@ typedef struct Musica {
     char artista[50];
     int minutos;
     int segundos;
-    struct Musica* proximo;
-    struct Musica* anterior;
+    struct Musica* prox;
+    struct Musica* ant;
 } Musica;
 
-typedef struct {
-    Musica* cabeca;
-    int tamanho;
-} ListaReproducao;
+typedef struct listaencadeada{
+    Musica* head;
+    int tam;
+} Lista;
 
-void inicializarLista(ListaReproducao* lista) {
-    lista->cabeca = NULL;
-    lista->tamanho = 0;
+void inicializarLista(Lista* lista) {
+    lista->head = NULL;
+    lista->tam = 0;
 }
 
 Musica* criarMusica(const char* titulo, const char* artista, int minutos, int segundos) {
@@ -27,95 +27,95 @@ Musica* criarMusica(const char* titulo, const char* artista, int minutos, int se
     strcpy(novaMusica->artista, artista);
     novaMusica->minutos = minutos;
     novaMusica->segundos = segundos;
-    novaMusica->proximo = novaMusica->anterior = novaMusica;
+    novaMusica->prox = novaMusica->ant = novaMusica;
     return novaMusica;
 }
 
-void adicionarMusica(ListaReproducao* lista, const char* titulo, const char* artista, int minutos, int segundos) {
+void adicionarMusica(Lista* lista, const char* titulo, const char* artista, int minutos, int segundos) {
     Musica* novaMusica = criarMusica(titulo, artista, minutos, segundos);
-    if (lista->cabeca == NULL) {
-        lista->cabeca = novaMusica;
+    if (lista->head == NULL) {
+        lista->head = novaMusica;
     } else {
-        Musica* ultimo = lista->cabeca->anterior;
-        ultimo->proximo = novaMusica;
-        novaMusica->anterior = ultimo;
-        novaMusica->proximo = lista->cabeca;
-        lista->cabeca->anterior = novaMusica;
+        Musica* ultimo = lista->head->ant;
+        ultimo->prox = novaMusica;
+        novaMusica->ant = ultimo;
+        novaMusica->prox = lista->head;
+        lista->head->ant = novaMusica;
     }
-    lista->tamanho++;
+    lista->tam++;
 }
 
-void removerMusica(ListaReproducao* lista, const char* titulo) {
-    if (lista->cabeca == NULL) {
-        printf("A lista de reprodução está vazia.\n");
+void removerMusica(Lista* lista, const char* titulo) {
+    if (lista->head == NULL) {
+        printf("A lista está vazia.\n");
         return;
     }
-    Musica* atual = lista->cabeca;
+    Musica* atual = lista->head;
     do {
         if (strcmp(atual->titulo, titulo) == 0) {
-            if (atual->proximo == atual) {
-                lista->cabeca = NULL;
+            if (atual->prox == atual) {
+                lista->head = NULL;
             } else {
-                atual->anterior->proximo = atual->proximo;
-                atual->proximo->anterior = atual->anterior;
-                if (atual == lista->cabeca) {
-                    lista->cabeca = atual->proximo;
+                atual->ant->prox = atual->prox;
+                atual->prox->ant = atual->ant;
+                if (atual == lista->head) {
+                    lista->head = atual->prox;
                 }
             }
             free(atual);
-            lista->tamanho--;
-            printf("Música removida com sucesso!\n");
+            lista->tam--;
+            printf("Música removida!\n");
             return;
         }
-        atual = atual->proximo;
-    } while (atual != lista->cabeca);
+        atual = atual->prox;
+    } while (atual != lista->head);
     printf("Música não encontrada.\n");
 }
 
-void visualizarMusicas(ListaReproducao* lista) {
-    if (lista->cabeca == NULL) {
-        printf("Lista de reprodução vazia.\n");
+void visualizarMusicas(Lista* lista) {
+    if (lista->head == NULL) {
+        printf("Lista vazia.\n");
         return;
     }
-    Musica* atual = lista->cabeca;
+    Musica* atual = lista->head;
     do {
         printf("Título: %s, Artista: %s, Duração: %02d:%02d\n", atual->titulo, atual->artista, atual->minutos, atual->segundos);
-        atual = atual->proximo;
-    } while (atual != lista->cabeca);
+        atual = atual->prox;
+    } while (atual != lista->head);
 }
 
-void limparLista(ListaReproducao* lista) {
-    while (lista->tamanho > 0) {
-        removerMusica(lista, lista->cabeca->titulo);
+void limparLista(Lista* lista) {
+    while (lista->tam > 0) {
+        removerMusica(lista, lista->head->titulo);
     }
 }
 
-void pesquisarMusica(ListaReproducao* lista, const char* titulo) {
-    if (lista->cabeca == NULL) {
-        printf("Lista de reprodução vazia.\n");
+void pesquisarMusica(Lista* lista, const char* titulo) {
+    if (lista->head == NULL) {
+        printf("Lista está vazia.\n");
         return;
     }
-    Musica* atual = lista->cabeca;
+    Musica* atual = lista->head;
     do {
         if (strcmp(atual->titulo, titulo) == 0) {
             printf("Música encontrada: Título: %s, Artista: %s, Duração: %02d:%02d\n", atual->titulo, atual->artista, atual->minutos, atual->segundos);
             return;
         }
-        atual = atual->proximo;
-    } while (atual != lista->cabeca);
+        atual = atual->prox;
+    } while (atual != lista->head);
     printf("Música não encontrada.\n");
 }
 
-void ordenarMusicasPorTitulo(ListaReproducao* lista) {
-    if (lista->tamanho < 2) return;
+void ordenarMusicasPorTitulo(Lista* lista) {
+    if (lista->tam < 2) return;
     Musica* atual;
     Musica* seguinte;
     char tempTitulo[50], tempArtista[50];
     int tempMinutos, tempSegundos;
-    for (int i = 0; i < lista->tamanho - 1; i++) {
-        atual = lista->cabeca;
-        seguinte = atual->proximo;
-        for (int j = 0; j < lista->tamanho - 1 - i; j++) {
+    for (int i = 0; i < lista->tam - 1; i++) {
+        atual = lista->head;
+        seguinte = atual->prox;
+        for (int j = 0; j < lista->tam - 1 - i; j++) {
             if (strcmp(atual->titulo, seguinte->titulo) > 0) {
                 strcpy(tempTitulo, atual->titulo);
                 strcpy(tempArtista, atual->artista);
@@ -131,49 +131,51 @@ void ordenarMusicasPorTitulo(ListaReproducao* lista) {
                 seguinte->segundos = tempSegundos;
             }
             atual = seguinte;
-            seguinte = seguinte->proximo;
+            seguinte = seguinte->prox;
         }
     }
 }
 
-int contarMusicas(ListaReproducao* lista) {
-    return lista->tamanho;
+int contarMusicas(Lista* lista) {
+    return lista->tam;
 }
 
 int main() {
-    ListaReproducao lista;
+    Lista lista;
     inicializarLista(&lista);
     int opcao;
     do {
-        printf("\nMenu:\n");
-        printf("1. Adicionar Música\n");
-        printf("2. Remover Música\n");
-        printf("3. Visualizar Músicas\n");
-        printf("4. Limpar Lista\n");
-        printf("5. Pesquisar Música\n");
-        printf("6. Ordenar Músicas por Título\n");
-        printf("7. Contar Músicas\n");
-        printf("8. Sair\n");
+        printf("\n==============\n");
+        printf("MENU PRINCIPAL\n");
+        printf("==============\n");
+        printf("1-Adicionar Música\n");
+        printf("2-Remover Música\n");
+        printf("3-Visualizar Músicas\n");
+        printf("4-Limpar Lista\n");
+        printf("5-Pesquisar Música\n");
+        printf("6-Ordenar Músicas por Título\n");
+        printf("7-Contar Músicas\n");
+        printf("8-Sair\n");
         printf("Escolha uma opção: ");
         scanf("%d", &opcao);
-        getchar(); // Limpar buffer
+        getchar(); 
         char titulo[50], artista[50];
         int minutos, segundos;
         switch (opcao) {
             case 1:
-                printf("Digite o título da música: ");
+                printf("Título da música: ");
                 fgets(titulo, sizeof(titulo), stdin);
                 titulo[strcspn(titulo, "\n")] = '\0';
-                printf("Digite o artista: ");
+                printf("Artista: ");
                 fgets(artista, sizeof(artista), stdin);
                 artista[strcspn(artista, "\n")] = '\0';
-                printf("Digite a duração (formato MM:SS): ");
+                printf("Duração: ");
                 scanf("%d:%d", &minutos, &segundos);
-                getchar(); // Limpar buffer
+                getchar();
                 adicionarMusica(&lista, titulo, artista, minutos, segundos);
                 break;
             case 2:
-                printf("Digite o título da música a remover: ");
+                printf("Título da música para a remoção: ");
                 fgets(titulo, sizeof(titulo), stdin);
                 titulo[strcspn(titulo, "\n")] = '\0';
                 removerMusica(&lista, titulo);
@@ -186,21 +188,21 @@ int main() {
                 printf("Lista de reprodução limpa.\n");
                 break;
             case 5:
-                printf("Digite o título da música a pesquisar: ");
+                printf("Pesquisar música: ");
                 fgets(titulo, sizeof(titulo), stdin);
                 titulo[strcspn(titulo, "\n")] = '\0';
                 pesquisarMusica(&lista, titulo);
                 break;
             case 6:
                 ordenarMusicasPorTitulo(&lista);
-                printf("Músicas ordenadas por título.\n");
+                printf("Músicas ordenadas.\n");
                 break;
             case 7:
                 printf("Total de músicas: %d\n", contarMusicas(&lista));
                 break;
             case 8:
                 limparLista(&lista);
-                printf("Saindo do programa...\n");
+                printf("VALEU!!!\n");
                 break;
             default:
                 printf("Opção inválida!\n");
